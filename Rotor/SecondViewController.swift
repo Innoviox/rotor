@@ -2,7 +2,7 @@
 //  SecondViewController.swift
 //  Rotor
 //
-//  Created by Sarah Leavitt on 4/2/18.
+//  Created by Simon Chervenak on 4/2/18.
 //  Copyright © 2018 Innoviox. All rights reserved.
 //
 
