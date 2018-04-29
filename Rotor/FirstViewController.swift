@@ -28,10 +28,21 @@ class FirstViewController: UIViewController {
     }
     
     @IBAction func `switch`(_ sender: Any) {
+        
     }
     
     @IBAction func add(_ sender: Any) {
-        let newField = UITextField()
+        let sampleTextField =  UITextField(frame: CGRect(x: 20, y: 100, width: 300, height: 40))
+        sampleTextField.placeholder = "Enter text here"
+        sampleTextField.font = UIFont.systemFont(ofSize: 15)
+        sampleTextField.borderStyle = UITextBorderStyle.roundedRect
+        sampleTextField.autocorrectionType = UITextAutocorrectionType.no
+        sampleTextField.keyboardType = UIKeyboardType.default
+        sampleTextField.returnKeyType = UIReturnKeyType.done
+        sampleTextField.clearButtonMode = UITextFieldViewMode.whileEditing;
+        sampleTextField.contentVerticalAlignment = UIControlContentVerticalAlignment.center
+        sampleTextField.delegate = self as? UITextFieldDelegate
+        self.view.addSubview(sampleTextField)
     }
 }
 
