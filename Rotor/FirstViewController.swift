@@ -16,13 +16,12 @@ class FirstViewController: UIViewController {
     
     var types = [String](arrayLiteral: "Pattern", "Anagram", "Build");
     var textFields = [UITextField]();
+    var minusButtons = [UIButton]();
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // textFields.append(originalText);
         update(originalText)
         originalText.addTarget(self, action: #selector(FirstViewController.typed(_:)), for: UIControlEvents.editingChanged)
-        // Do any additional setup after loading the view, typically from a nib.
     }
 
     override func didReceiveMemoryWarning() {
@@ -42,11 +41,45 @@ class FirstViewController: UIViewController {
     }
     
     @IBAction func add(_ sender: Any) {
-        let frame = self.originalText.frame
-        let h = frame.size.height
-        let newField =  UITextField(frame: CGRect(x: frame.origin.x, y: CGFloat(frame.origin.y) + (5 + h) * CGFloat(self.textFields.count), width: frame.size.width, height: h))
-        update(newField)
-        newField.addTarget(self, action: #selector(FirstViewController.typed(_:)), for: UIControlEvents.editingChanged)
+        if (self.textFields.count < 5) {
+            var frame = self.originalText.frame
+            var h = frame.size.height
+            let newField = UITextField(frame: CGRect(x: frame.origin.x, y: CGFloat(frame.origin.y) + (5 + h) * CGFloat(self.textFields.count), width: frame.size.width, height: h))
+            update(newField)
+            newField.addTarget(self, action: #selector(FirstViewController.typed(_:)), for: UIControlEvents.editingChanged)
+        
+            frame = self.addButton.frame
+            h = frame.size.height
+            let newButton = UIButton(frame: CGRect(x: frame.origin.x, y: CGFloat(frame.origin.y) + (5 + h) * (CGFloat(self.minusButtons.count) + 1), width: frame.size.width, height: h))
+            newButton.setImage(UIImage(named: "minus"), for: .normal)
+            newButton.addTarget(self, action: #selector(self.deleteLine(_:)), for: .touchUpInside)
+            self.view.addSubview(newButton)
+            self.minusButtons.append(newButton)
+        }
+    }
+    
+    @objc func deleteLine(_ button: UIButton) {
+        let idx = self.minusButtons.index(of: button)
+        if (idx != nil) {
+            let ti = idx!+1
+            self.textFields[ti].removeFromSuperview()
+            self.textFields.remove(at: ti)
+            for i in ti..<self.textFields.count {
+                let e = self.textFields[i]
+                let f = e.frame
+                let h = f.size.height
+                e.frame = CGRect(x: f.origin.x, y: CGFloat(self.originalText.frame.origin.y) + (5 + h) * CGFloat(i), width: f.size.width, height: h)
+            }
+            
+            self.minusButtons[idx!].removeFromSuperview()
+            for i in idx!..<self.minusButtons.count {
+                let e = self.minusButtons[i]
+                let f = e.frame
+                let h = f.size.height
+                e.frame = CGRect(x: f.origin.x, y: CGFloat(self.originalText.frame.origin.y) + (5 + h) * CGFloat(i), width: f.size.width, height: h)
+            }
+            self.minusButtons.remove(at: idx!)
+        }
     }
     
     func update(_ field: UITextField) {
