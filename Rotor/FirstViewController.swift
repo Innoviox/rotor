@@ -15,8 +15,10 @@ class FirstViewController: UIViewController {
     @IBOutlet weak var originalText: UITextField!
     
     var types = [String](arrayLiteral: "Pattern", "Anagram", "Build");
+    
     var textFields = [UITextField]();
     var minusButtons = [UIButton]();
+    var controls = [UISegmentedControl]();
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -44,7 +46,13 @@ class FirstViewController: UIViewController {
         if (self.textFields.count < 5) {
             var frame = self.originalText.frame
             var h = frame.size.height
-            let newField = UITextField(frame: CGRect(x: frame.origin.x, y: CGFloat(frame.origin.y) + (5 + h) * CGFloat(self.textFields.count), width: frame.size.width, height: h))
+            
+            let control = UISegmentedControl(items: ["P", "A", "B"])
+            control.frame = CGRect(x: frame.origin.x, y: CGFloat(frame.origin.y) + (5 + h) * CGFloat(self.textFields.count), width: 50, height: h)
+            self.view.addSubview(control)
+            self.controls.append(control)
+            
+            let newField = UITextField(frame: CGRect(x: frame.origin.x + 50, y: CGFloat(frame.origin.y) + (5 + h) * CGFloat(self.textFields.count), width: frame.size.width - 50, height: h))
             update(newField)
             newField.addTarget(self, action: #selector(FirstViewController.typed(_:)), for: UIControlEvents.editingChanged)
         
@@ -79,6 +87,15 @@ class FirstViewController: UIViewController {
                 e.frame = CGRect(x: f.origin.x, y: CGFloat(self.originalText.frame.origin.y) + (5 + h) * CGFloat(i), width: f.size.width, height: h)
             }
             self.minusButtons.remove(at: idx!)
+            
+            self.controls[idx!].removeFromSuperview()
+            for i in idx!..<self.controls.count {
+                let e = self.controls[i]
+                let f = e.frame
+                let h = f.size.height
+                e.frame = CGRect(x: f.origin.x, y: CGFloat(self.originalText.frame.origin.y) + (5 + h) * CGFloat(i), width: 50, height: h)
+            }
+            self.controls.remove(at: idx!)
         }
     }
     
