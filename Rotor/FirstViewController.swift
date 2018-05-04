@@ -32,21 +32,14 @@ class FirstViewController: UIViewController {
         update(originalText)
         originalText.addTarget(self, action: #selector(FirstViewController.typed(_:)), for: UIControlEvents.editingChanged)
         print("Loading")
-        
-        let file = "Dictionaries/GJ.txt" //this is the file. we will write to and read from it
-        
-        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            
-            let fileURL = dir.appendingPathComponent(file)
-           
-            //reading
-            do {
-                let text2 = try String(contentsOf: fileURL, encoding: .utf8)
-                print(text2)
-            }
-            catch {
-                print("\(error)")
-            }
+        let filePath = Bundle.main.resourcePath!
+        print(filePath)
+        do {
+            let text2 = try String(contentsOf: URL(fileURLWithPath: filePath + "/GJ.txt"), encoding: .utf8)
+            print(text2)
+        }
+        catch {
+            print("\(error)")
         }
         
         print("loaded")
