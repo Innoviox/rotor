@@ -14,7 +14,7 @@ class FirstViewController: UIViewController {
     @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var originalText: UITextField!
     
-    var types = [String](arrayLiteral: "Pattern", "Anagram", "Build");
+    var types = ["Pattern", "Anagram", "Build"];
     
     var textFields = [UITextField]();
     var minusButtons = [UIButton]();
@@ -24,11 +24,16 @@ class FirstViewController: UIViewController {
         super.viewDidLoad()
         update(originalText)
         originalText.addTarget(self, action: #selector(FirstViewController.typed(_:)), for: UIControlEvents.editingChanged)
+        do {
+            let data = try String(contentsOfFile: "resources/GJ.txt", encoding: String.Encoding.utf8)
+            print(data)
+        } catch {
+            print("Unexpected error: \(error).")
+        }
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
 
