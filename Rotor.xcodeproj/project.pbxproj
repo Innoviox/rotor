@@ -690,6 +690,7 @@
 		F927BB9B207258BE003852B8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F927BB99207258BE003852B8 /* LaunchScreen.storyboard */; };
 		F927BBA6207258BE003852B8 /* RotorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F927BBA5207258BE003852B8 /* RotorTests.swift */; };
 		F927BBB1207258BE003852B8 /* RotorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F927BBB0207258BE003852B8 /* RotorUITests.swift */; };
+		F9E2B48B209CCEB8005B7A90 /* StreamReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E2B48A209CCEB8005B7A90 /* StreamReader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1399,6 +1400,7 @@
 		F927BBAC207258BE003852B8 /* RotorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RotorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F927BBB0207258BE003852B8 /* RotorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RotorUITests.swift; sourceTree = "<group>"; };
 		F927BBB2207258BE003852B8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		F9E2B48A209CCEB8005B7A90 /* StreamReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamReader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2133,6 +2135,7 @@
 			isa = PBXGroup;
 			children = (
 				F927BB8E207258BE003852B8 /* AppDelegate.swift */,
+				F9E2B48A209CCEB8005B7A90 /* StreamReader.swift */,
 				F927BB90207258BE003852B8 /* FirstViewController.swift */,
 				F927BB92207258BE003852B8 /* SecondViewController.swift */,
 				F927BB94207258BE003852B8 /* Main.storyboard */,
@@ -2970,6 +2973,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F9E2B48B209CCEB8005B7A90 /* StreamReader.swift in Sources */,
 				F927BB93207258BE003852B8 /* SecondViewController.swift in Sources */,
 				F927BB8F207258BE003852B8 /* AppDelegate.swift in Sources */,
 				F927BB91207258BE003852B8 /* FirstViewController.swift in Sources */,

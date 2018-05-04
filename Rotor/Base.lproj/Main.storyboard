@@ -49,6 +49,26 @@
                                     <action selector="add:" destination="9pv-A4-QxB" eventType="touchUpInside" id="hvJ-Xt-Jr3"/>
                                 </connections>
                             </button>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dXo-n3-DOA">
+                                <rect key="frame" x="16" y="110" width="343" height="492"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8d6-D7-fNA">
+                                        <rect key="frame" x="0.0" y="0.0" width="42" height="492"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="492" id="nAP-a5-e8o"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="8d6-D7-fNA" firstAttribute="leading" secondItem="dXo-n3-DOA" secondAttribute="leading" id="MFe-cG-f3h"/>
+                                    <constraint firstAttribute="bottom" secondItem="8d6-D7-fNA" secondAttribute="bottom" id="gEh-Uv-AtO"/>
+                                    <constraint firstAttribute="trailing" secondItem="8d6-D7-fNA" secondAttribute="trailing" id="tbH-Oi-9I4"/>
+                                    <constraint firstItem="8d6-D7-fNA" firstAttribute="top" secondItem="dXo-n3-DOA" secondAttribute="top" id="uYU-Og-Eh2"/>
+                                </constraints>
+                            </scrollView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -56,13 +76,18 @@
                             <constraint firstItem="Hxd-ZV-Hez" firstAttribute="leading" secondItem="PQr-Ze-W5v" secondAttribute="leading" constant="16" id="CzG-2H-05I"/>
                             <constraint firstItem="qyE-KP-FIZ" firstAttribute="leading" secondItem="Hxd-ZV-Hez" secondAttribute="trailing" constant="16" id="DoG-2n-HgC"/>
                             <constraint firstItem="PQr-Ze-W5v" firstAttribute="trailing" secondItem="1Ih-Kr-fA9" secondAttribute="trailing" constant="16" id="DzU-wH-5eg"/>
+                            <constraint firstItem="dXo-n3-DOA" firstAttribute="leading" secondItem="PQr-Ze-W5v" secondAttribute="leading" constant="16" id="EQT-7L-jym"/>
                             <constraint firstItem="qyE-KP-FIZ" firstAttribute="top" secondItem="1Ih-Kr-fA9" secondAttribute="bottom" constant="8" id="GbZ-gJ-cv1"/>
                             <constraint firstItem="qyE-KP-FIZ" firstAttribute="leading" secondItem="Hxd-ZV-Hez" secondAttribute="trailing" constant="16" id="KH6-Rv-rKv"/>
                             <constraint firstItem="PQr-Ze-W5v" firstAttribute="trailing" secondItem="qyE-KP-FIZ" secondAttribute="trailing" constant="16" id="Lh7-1C-WNw"/>
+                            <constraint firstItem="dXo-n3-DOA" firstAttribute="top" secondItem="Hxd-ZV-Hez" secondAttribute="bottom" constant="8" id="OkQ-He-XsU"/>
+                            <constraint firstItem="PQr-Ze-W5v" firstAttribute="bottom" secondItem="dXo-n3-DOA" secondAttribute="bottom" constant="16" id="Xaa-EL-YFl"/>
                             <constraint firstItem="1Ih-Kr-fA9" firstAttribute="top" secondItem="PQr-Ze-W5v" secondAttribute="top" constant="16" id="eSd-eb-Iba"/>
                             <constraint firstItem="qyE-KP-FIZ" firstAttribute="top" secondItem="1Ih-Kr-fA9" secondAttribute="bottom" constant="8" id="foG-Dc-jeb"/>
                             <constraint firstItem="PQr-Ze-W5v" firstAttribute="trailing" secondItem="qyE-KP-FIZ" secondAttribute="trailing" constant="16" id="kKE-aC-f4R"/>
+                            <constraint firstItem="PQr-Ze-W5v" firstAttribute="trailing" secondItem="dXo-n3-DOA" secondAttribute="trailing" constant="16" id="mE3-ht-ovc"/>
                             <constraint firstItem="Hxd-ZV-Hez" firstAttribute="top" secondItem="1Ih-Kr-fA9" secondAttribute="bottom" constant="8" id="tVi-H6-jak"/>
+                            <constraint firstItem="PQr-Ze-W5v" firstAttribute="bottom" secondItem="dXo-n3-DOA" secondAttribute="bottom" constant="16" id="wK7-Kd-rO7"/>
                             <constraint firstItem="1Ih-Kr-fA9" firstAttribute="leading" secondItem="PQr-Ze-W5v" secondAttribute="leading" constant="16" id="wRv-GK-cwk"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="PQr-Ze-W5v"/>
@@ -71,7 +96,9 @@
                     <connections>
                         <outlet property="addButton" destination="qyE-KP-FIZ" id="Be4-ve-WPv"/>
                         <outlet property="control" destination="1Ih-Kr-fA9" id="zrs-nD-GaU"/>
+                        <outlet property="label" destination="8d6-D7-fNA" id="Z2U-KJ-oay"/>
                         <outlet property="originalText" destination="Hxd-ZV-Hez" id="NTu-au-eH2"/>
+                        <outlet property="output" destination="dXo-n3-DOA" id="wKj-6u-aRZ"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W5J-7L-Pyd" sceneMemberID="firstResponder"/>

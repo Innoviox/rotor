@@ -13,35 +13,36 @@ class FirstViewController: UIViewController {
     @IBOutlet weak var control: UISegmentedControl!
     @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var originalText: UITextField!
+    @IBOutlet weak var output: UIScrollView!
+    @IBOutlet weak var label: UILabel!
     
     var types = ["Pattern", "Anagram", "Build"];
     
     var textFields = [UITextField]();
     var minusButtons = [UIButton]();
     var controls = [UISegmentedControl]();
-    
-    func extractAllFiles(atPath path: String, withExtension fileExtension:String) -> [String] {
-        let enumerator = FileManager.default.enumerator(atPath: path)
-        let filePaths = enumerator?.allObjects as! [String]
-        let txtFilePaths = filePaths.filter{$0.contains("." + fileExtension)}
-        return txtFilePaths
-    }
+    var dictionaries = [String: Set<String>]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         update(originalText)
         originalText.addTarget(self, action: #selector(FirstViewController.typed(_:)), for: UIControlEvents.editingChanged)
         print("Loading")
+        let alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         let filePath = Bundle.main.resourcePath!
-        print(filePath)
-        do {
-            let text2 = try String(contentsOf: URL(fileURLWithPath: filePath + "/GJ.txt"), encoding: .utf8)
-            print(text2)
-        }
-        catch {
-            print("\(error)")
+        for char1 in alph {
+            for char2 in alph {
+                let diphth = String(char1) + String(char2)
+                dictionaries[diphth] = Set<String>();
+                let reader = StreamReader(path: filePath + "/" + diphth + ".txt");
+                while let line = reader?.nextLine() {
+                    dictionaries[diphth]?.insert(line)
+                }
+            }
         }
         
+        print(dictionaries["GJ"]!)
+        label.text = ""
         print("loaded")
     }
 
@@ -52,6 +53,11 @@ class FirstViewController: UIViewController {
     @IBAction func typed(_ sender: Any) {
         for tf: UITextField in  self.textFields {
             print(tf.text!)
+        }
+        label.text = ""
+        for word in search(mode: types[control.selectedSegmentIndex], text: originalText!.text!) {
+            label.text = (label.text ?? "") + word + "\n"
+            print(word)
         }
     }
     
@@ -129,6 +135,24 @@ class FirstViewController: UIViewController {
         field.delegate = self as? UITextFieldDelegate
         self.view.addSubview(field)
         textFields.append(field)
+    }
+    
+    func search(mode: String, text: String) -> [String] {
+        var ret = [String]()
+        if mode == self.types[0] {
+            let pattern = "^" + text.uppercased() + "$"
+            for (_, set) in self.dictionaries {
+                for word in set {
+                    let regex = try! NSRegularExpression(pattern: pattern, options: [])
+
+                    if (regex.matches(in: word, options: [], range: NSRange(location: 0, length: word.count)).count > 0) {
+                        ret.append(word)
+                    }
+                }
+            }
+        }
+        
+        return ret
     }
 }
 
