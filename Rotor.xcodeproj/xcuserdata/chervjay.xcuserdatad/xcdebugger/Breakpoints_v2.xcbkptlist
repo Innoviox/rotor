@@ -10,13 +10,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Rotor/FirstViewController.swift"
-            timestampString = "547088605.483947"
+            timestampString = "547132832.924144"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "45"
-            endingLineNumber = "45"
-            landmarkName = "FirstViewController"
-            landmarkType = "3">
+            startingLineNumber = "48"
+            endingLineNumber = "48"
+            landmarkName = "typed(_:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -26,7 +26,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Rotor/FirstViewController.swift"
-            timestampString = "547088605.484632"
+            timestampString = "547132832.924541"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "22"

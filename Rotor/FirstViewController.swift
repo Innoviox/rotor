@@ -20,16 +20,23 @@ class FirstViewController: UIViewController {
     var minusButtons = [UIButton]();
     var controls = [UISegmentedControl]();
     
+    func extractAllFiles(atPath path: String, withExtension fileExtension:String) -> [String] {
+        let enumerator = FileManager.default.enumerator(atPath: path)
+        let filePaths = enumerator?.allObjects as! [String]
+        let txtFilePaths = filePaths.filter{$0.contains("." + fileExtension)}
+        return txtFilePaths
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         update(originalText)
         originalText.addTarget(self, action: #selector(FirstViewController.typed(_:)), for: UIControlEvents.editingChanged)
-        do {
-            let data = try String(contentsOfFile: "resources/GJ.txt", encoding: String.Encoding.utf8)
-            print(data)
-        } catch {
-            print("Unexpected error: \(error).")
+        print("Loading")
+        let files = extractAllFiles(atPath: "/Users/chervjay/Documents/GitHub/Axiom/rotor", withExtension: "txt")
+        for f in files {
+            print(f)
         }
+        print("loaded")
     }
 
     override func didReceiveMemoryWarning() {
