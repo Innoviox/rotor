@@ -51,20 +51,21 @@ class FirstViewController: UIViewController {
     }
 
     func update() {
-        let words = search(mode: types[control.selectedSegmentIndex], text: originalText!.text!)
+        var words = search(mode: types[control.selectedSegmentIndex], text: originalText!.text!)
+        for (c, t) in zip(controls, textFields[1..<textFields.count]) {
+            words = search(mode: types[c.selectedSegmentIndex], text: t.text!, dict: words)
+        }
         label.text = words.joined(separator: "\n")
     }
     
     @IBAction func typed(_ sender: Any) {
-        for tf: UITextField in  self.textFields {
-            // print(tf.text!)
+        for tf: UITextField in self.textFields {
             tf.text = tf.text?.uppercased()
         }
         update()
     }
-    
-    @IBAction func `switch`(_ sender: Any) {
-        print(self.types[self.control.selectedSegmentIndex])
+
+    @IBAction func change(_ sender: Any) {
         update()
     }
     
@@ -76,6 +77,8 @@ class FirstViewController: UIViewController {
             let control = UISegmentedControl(items: ["P", "A", "B"])
             control.frame = CGRect(x: frame.origin.x, y: CGFloat(frame.origin.y) + (5 + h) * CGFloat(self.textFields.count), width: 50, height: h)
             control.selectedSegmentIndex = 0
+            control.addTarget(self, action: #selector(FirstViewController.change(_:)), for:.touchUpInside)
+            control.addTarget(self, action: #selector(FirstViewController.change(_:)), for:.valueChanged)
             self.view.addSubview(control)
             self.controls.append(control)
             
@@ -126,6 +129,10 @@ class FirstViewController: UIViewController {
                 e.frame = CGRect(x: f.origin.x, y: CGFloat(self.originalText.frame.origin.y) + (5 + h) * CGFloat(i), width: 50, height: h)
             }
             self.controls.remove(at: idx!)
+            
+            let h = self.addButton.frame.size.height
+            let frame = self.label.frame
+            self.label.frame = CGRect(x: frame.origin.x, y: frame.origin.y - h - 5, width: frame.size.width, height: frame.size.height + h + 5)
         }
     }
     
@@ -143,13 +150,22 @@ class FirstViewController: UIViewController {
         textFields.append(field)
     }
     
-    func search(mode: String, text: String) -> [String] {
+    func search(mode: String, text: String, dict: [String] = [String]()) -> [String] {
+        print(mode, text, dict)
         if (text.count < 2) { return [String]() }
         var ret = Set<String>()
         if mode == self.types[0] {
             let pattern = "^" + text.uppercased() + "$"
-            for (_, set) in self.dictionaries {
-                for word in set {
+            if dict.count == 0 {
+                for (_, set) in self.dictionaries {
+                    for word in set {
+                        if word.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil {
+                            ret.insert(word)
+                        }
+                    }
+                }
+            } else {
+                for word in dict {
                     if word.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil {
                         ret.insert(word)
                     }
@@ -164,7 +180,7 @@ class FirstViewController: UIViewController {
             }
             for word in perms {
                 for bWord in blanks(word) {
-                    if check(word: bWord) {
+                    if check(word: bWord, dict: dict) {
                         ret.insert(bWord)
                     }
                 }
@@ -178,31 +194,17 @@ class FirstViewController: UIViewController {
         }
     }
     
-    func check(word: String) -> Bool {
-        let index = word.index(word.startIndex, offsetBy: 2)
-        return dictionaries[String(word[..<index])]!.contains(word)
-    }
-    /*
-    func combinations(array : [String]) -> [String] {
-        
-        // Recursion terminates here:
-        if array.count == 0 { return [] }
-        
-        // Concatenate all combinations that can be built with element #i at the
-        // first place, where i runs through all array indices:
-        return array.indices.flatMap { i -> [String] in
-            
-            // Pick element #i and remove it from the array:
-            var arrayMinusOne = array
-            let elem = arrayMinusOne.remove(at: i)
-            
-            // Prepend element to all combinations of the smaller array:
-            return [elem] + combinations(array: arrayMinusOne).map { elem + $0 }
+    func check(word: String, dict: [String] = [String]()) -> Bool {
+        if (dict.count == 0) {
+            let index = word.index(word.startIndex, offsetBy: 2)
+            let pref = String(word[..<index])
+            return dictionaries[pref] != nil && dictionaries[pref]!.contains(word)
+        } else {
+            return dict.contains(word)
         }
     }
-    */
+
     func combinations(list: [String], minStringLen: Int = 2) -> Set<String> {
-        print(list)
         func permute(fromList: [String], toList: [String], minStringLen: Int, set: inout Set<String>) {
             if toList.count >= minStringLen {
                 set.insert(toList.joined(separator: ""))
@@ -220,6 +222,7 @@ class FirstViewController: UIViewController {
         permute(fromList: list, toList:[], minStringLen: minStringLen, set: &set)
         return set
     }
+    
     // Takes any collection of T and returns an array of permutations
     func permute<C: Collection>(items: C) -> [[C.Iterator.Element]] {
         var scratch = Array(items) // This is a scratch space for Heap's algorithm

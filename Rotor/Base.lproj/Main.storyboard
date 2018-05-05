@@ -26,6 +26,7 @@
                                     <segment title="Build"/>
                                 </segments>
                                 <connections>
+                                    <action selector="change:" destination="9pv-A4-QxB" eventType="valueChanged" id="nKM-uo-wMV"/>
                                     <action selector="switch:" destination="9pv-A4-QxB" eventType="valueChanged" id="smo-7a-tpS"/>
                                 </connections>
                             </segmentedControl>
