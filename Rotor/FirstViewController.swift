@@ -9,7 +9,7 @@
 import UIKit
 
 class FirstViewController: UIViewController {
-
+    
     @IBOutlet weak var control: UISegmentedControl!
     @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var originalText: UITextField!
@@ -25,9 +25,10 @@ class FirstViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("Loading")
+        
         field_set(originalText)
         originalText.addTarget(self, action: #selector(FirstViewController.typed(_:)), for: UIControlEvents.editingChanged)
-        print("Loading")
         
         let filePath = Bundle.main.resourcePath!
         for char1 in alph {
@@ -41,30 +42,23 @@ class FirstViewController: UIViewController {
             }
         }
         
-        print(dictionaries["GJ"]!)
         label.text = ""
+        
         print("loaded")
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
-
-    func update() {
-        var words = search(mode: types[control.selectedSegmentIndex], text: originalText!.text!)
-        for (c, t) in zip(controls, textFields[1..<textFields.count]) {
-            words = search(mode: types[c.selectedSegmentIndex], text: t.text!, dict: words)
-        }
-        label.text = words.joined(separator: "\n")
-    }
     
+    // MARK: Actions
     @IBAction func typed(_ sender: Any) {
         for tf: UITextField in self.textFields {
             tf.text = tf.text?.uppercased()
         }
         update()
     }
-
+    
     @IBAction func change(_ sender: Any) {
         update()
     }
@@ -84,7 +78,7 @@ class FirstViewController: UIViewController {
             let newField = UITextField(frame: CGRect(x: frame.origin.x + 50, y: CGFloat(frame.origin.y) + (5 + h) * CGFloat(self.textFields.count), width: frame.size.width - 50, height: h))
             field_set(newField)
             newField.addTarget(self, action: #selector(FirstViewController.typed(_:)), for: UIControlEvents.editingChanged)
-        
+            
             frame = self.addButton.frame
             h = frame.size.height
             let newButton = UIButton(frame: CGRect(x: frame.origin.x, y: CGFloat(frame.origin.y) + (5 + h) * (CGFloat(self.minusButtons.count) + 1), width: frame.size.width, height: h))
@@ -132,6 +126,7 @@ class FirstViewController: UIViewController {
             let h = self.addButton.frame.size.height
             let frame = self.label.frame
             self.label.frame = CGRect(x: frame.origin.x, y: frame.origin.y - h - 5, width: frame.size.width, height: frame.size.height + h + 5)
+            
             self.update()
         }
     }
@@ -150,26 +145,34 @@ class FirstViewController: UIViewController {
         textFields.append(field)
     }
     
+    // MARK: Logic
+    func update() {
+        var words = search(mode: types[control.selectedSegmentIndex], text: originalText!.text!)
+        for (c, t) in zip(controls, textFields[1..<textFields.count]) {
+            words = search(mode: types[c.selectedSegmentIndex], text: t.text!, dict: words)
+        }
+        label.text = words.joined(separator: "\n")
+    }
+    
     func search(mode: String, text: String, dict: [String] = [String]()) -> [String] {
-        print(mode, text, dict)
         if (text.count < 2) { return [String]() }
         var ret = Set<String>()
         if mode == self.types[0] {
-            let pattern = "^" + text.uppercased() + "$"
-            if dict.count == 0 {
-                for (_, set) in self.dictionaries {
-                    for word in set {
-                        if word.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil {
-                            ret.insert(word)
-                        }
-                    }
-                }
-            } else {
-                for word in dict {
+            func pattern(dict: Set<String>) {
+                for word in set {
                     if word.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil {
                         ret.insert(word)
                     }
                 }
+            }
+            
+            let pattern = "^" + text.uppercased() + "$"
+            if dict.count == 0 {
+                for set in self.dictionaries.values {
+                    pattern(set)
+                }
+            } else {
+                pattern(dict)
             }
         } else {
             let perms: Set<String>
@@ -194,41 +197,49 @@ class FirstViewController: UIViewController {
         }
     }
     
+    func blanks(_ word: String) -> [String] {
+        if word.contains(".") {
+            var ret = [String]()
+            let idx = word.index(of: ".")
+            for char in self.alph {
+                ret.append(contentsOf: self.blanks(word.replacingCharacters(in: idx!...idx!, with: String(char))))
+            }
+            return ret
+        }
+        return [word]
+    }
+    
     func check(word: String, dict: [String] = [String]()) -> Bool {
         if (dict.count == 0) {
-            let index = word.index(word.startIndex, offsetBy: 2)
-            let pref = String(word[..<index])
+            let pref = String(word[..<word.index(word.startIndex, offsetBy: 2)])
             return dictionaries[pref] != nil && dictionaries[pref]!.contains(word)
-        } else {
-            return dict.contains(word)
         }
+        return dict.contains(word)
     }
-
-    func combinations(list: [String], minStringLen: Int = 2) -> Set<String> {
-        func permute(fromList: [String], toList: [String], minStringLen: Int, set: inout Set<String>) {
-            if toList.count >= minStringLen {
+    
+    func combinations(list: [String]) -> Set<String> {
+        func permute(fromList: [String], toList: [String], set: inout Set<String>) {
+            if toList.count >= 2 {
                 set.insert(toList.joined(separator: ""))
             }
             if !fromList.isEmpty {
                 for (index, item) in fromList.enumerated() {
                     var newFrom = fromList
                     newFrom.remove(at: index)
-                    permute(fromList: newFrom, toList: toList + [item], minStringLen: minStringLen, set: &set)
+                    permute(fromList: newFrom, toList: toList + [item], set: &set)
                 }
             }
         }
         
         var set = Set<String>()
-        permute(fromList: list, toList:[], minStringLen: minStringLen, set: &set)
+        permute(fromList: list, toList:[], set: &set)
         return set
     }
     
-    // Takes any collection of T and returns an array of permutations
     func permute<C: Collection>(items: C) -> [[C.Iterator.Element]] {
-        var scratch = Array(items) // This is a scratch space for Heap's algorithm
-        var result: [[C.Iterator.Element]] = [] // This will accumulate our result
+        var scratch = Array(items)
+        var result: [[C.Iterator.Element]] = []
         
-        // Heap's algorithm
         func heap(_ n: Int) {
             if n == 1 {
                 result.append(scratch)
@@ -243,24 +254,9 @@ class FirstViewController: UIViewController {
             heap(n-1)
         }
         
-        // Let's get started
         heap(scratch.count)
         
-        // And return the result we built up
         return result
-    }
-    
-    func blanks(_ word: String) -> [String] {
-        var ret = [String]()
-        if word.contains(".") {
-            let idx = word.index(of: ".")
-            for char in self.alph {
-                ret.append(contentsOf: self.blanks(word.replacingCharacters(in: idx!...idx!, with: String(char))))
-            }
-        } else {
-            ret.append(word)
-        }
-        return ret
     }
 }
 
