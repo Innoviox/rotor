@@ -145,13 +145,13 @@ class FirstViewController: UIViewController {
     
     func search(mode: String, text: String) -> [String] {
         if (text.count < 2) { return [String]() }
-        var ret = [String]()
+        var ret = Set<String>()
         if mode == self.types[0] {
             let pattern = "^" + text.uppercased() + "$"
             for (_, set) in self.dictionaries {
                 for word in set {
                     if word.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil {
-                        ret.append(word)
+                        ret.insert(word)
                     }
                 }
             }
@@ -160,20 +160,73 @@ class FirstViewController: UIViewController {
             for word in perms.map({ String($0) }) {
                 for bWord in blanks(word) {
                     if check(word: bWord) {
-                        ret.append(bWord)
+                        ret.insert(bWord)
+                    }
+                }
+            }
+        } else {
+            let perms = combinations(list: text.map {String($0)})
+            print(perms)
+            for word in perms {
+                print(word)
+                for bWord in blanks(word) {
+                    if check(word: bWord) {
+                        ret.insert(bWord)
                     }
                 }
             }
         }
         
-        return ret.sorted()
+        return Array(ret).sorted {
+            if ($0.count == $1.count) {
+                return $0 < $1
+            }
+            return $0.count > $1.count
+        }
     }
     
     func check(word: String) -> Bool {
         let index = word.index(word.startIndex, offsetBy: 2)
         return dictionaries[String(word[..<index])]!.contains(word)
     }
-    
+    /*
+    func combinations(array : [String]) -> [String] {
+        
+        // Recursion terminates here:
+        if array.count == 0 { return [] }
+        
+        // Concatenate all combinations that can be built with element #i at the
+        // first place, where i runs through all array indices:
+        return array.indices.flatMap { i -> [String] in
+            
+            // Pick element #i and remove it from the array:
+            var arrayMinusOne = array
+            let elem = arrayMinusOne.remove(at: i)
+            
+            // Prepend element to all combinations of the smaller array:
+            return [elem] + combinations(array: arrayMinusOne).map { elem + $0 }
+        }
+    }
+    */
+    func combinations(list: [String], minStringLen: Int = 2) -> Set<String> {
+        print(list)
+        func permute(fromList: [String], toList: [String], minStringLen: Int, set: inout Set<String>) {
+            if toList.count >= minStringLen {
+                set.insert(toList.joined(separator: ""))
+            }
+            if !fromList.isEmpty {
+                for (index, item) in fromList.enumerated() {
+                    var newFrom = fromList
+                    newFrom.remove(at: index)
+                    permute(fromList: newFrom, toList: toList + [item], minStringLen: minStringLen, set: &set)
+                }
+            }
+        }
+        
+        var set = Set<String>()
+        permute(fromList: list, toList:[], minStringLen: minStringLen, set: &set)
+        return set
+    }
     // Takes any collection of T and returns an array of permutations
     func permute<C: Collection>(items: C) -> [[C.Iterator.Element]] {
         var scratch = Array(items) // This is a scratch space for Heap's algorithm
