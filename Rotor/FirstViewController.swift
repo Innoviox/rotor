@@ -202,19 +202,11 @@ class FirstViewController: UIViewController {
     }
     
     func blanks(_ word: String) -> [String] {
-        print("recieving \(word)")
         var ret = [String]()
-        if word.count > 6 {return ret}
         if word.contains(".") {
             let idx = word.index(of: ".")
             for char in self.alph {
-                // if (int_idx == 0) {
-                //     ret.append(contentsOf: self.blanks(String(char) + word.suffix(1)))
-                // } else if (int_idx == word.count - 1) {
-                //     ret.append(contentsOf: self.blanks(word.prefix(word.count - 1) + String(char)))
-                // } else {
-                    ret.append(contentsOf: self.blanks(word.replacingCharacters(in: idx!...idx!, with: String(char))))
-                // }
+                ret.append(contentsOf: self.blanks(word.replacingCharacters(in: idx!...idx!, with: String(char))))
             }
         } else {
             ret.append(word)
