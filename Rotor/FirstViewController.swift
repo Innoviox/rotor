@@ -155,20 +155,14 @@ class FirstViewController: UIViewController {
                     }
                 }
             }
-        } else if mode == self.types[1] {
-            let perms = permute(items: text)
-            for word in perms.map({ String($0) }) {
-                for bWord in blanks(word) {
-                    if check(word: bWord) {
-                        ret.insert(bWord)
-                    }
-                }
-            }
         } else {
-            let perms = combinations(list: text.map {String($0)})
-            print(perms)
+            let perms: Set<String>
+            if mode == self.types[1] {
+                perms = Set<String>(permute(items: text).map { String($0) })
+            } else {
+                perms = combinations(list: text.map { String($0) })
+            }
             for word in perms {
-                print(word)
                 for bWord in blanks(word) {
                     if check(word: bWord) {
                         ret.insert(bWord)
@@ -176,7 +170,6 @@ class FirstViewController: UIViewController {
                 }
             }
         }
-        
         return Array(ret).sorted {
             if ($0.count == $1.count) {
                 return $0 < $1
