@@ -77,7 +77,6 @@ class FirstViewController: UIViewController {
             let control = UISegmentedControl(items: ["P", "A", "B"])
             control.frame = CGRect(x: frame.origin.x, y: CGFloat(frame.origin.y) + (5 + h) * CGFloat(self.textFields.count), width: 50, height: h)
             control.selectedSegmentIndex = 0
-            control.addTarget(self, action: #selector(FirstViewController.change(_:)), for:.touchUpInside)
             control.addTarget(self, action: #selector(FirstViewController.change(_:)), for:.valueChanged)
             self.view.addSubview(control)
             self.controls.append(control)
@@ -133,6 +132,7 @@ class FirstViewController: UIViewController {
             let h = self.addButton.frame.size.height
             let frame = self.label.frame
             self.label.frame = CGRect(x: frame.origin.x, y: frame.origin.y - h - 5, width: frame.size.width, height: frame.size.height + h + 5)
+            self.update()
         }
     }
     
