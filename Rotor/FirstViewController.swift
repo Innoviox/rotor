@@ -44,8 +44,9 @@ class FirstViewController: UIViewController {
         }
         
         label.text = ""
+        label.font = UIFont(name: "Courier New", size: UIFont.systemFontSize)
         
-        print("loaded")
+        print("Loaded")
     }
     
     override func didReceiveMemoryWarning() {
@@ -54,9 +55,6 @@ class FirstViewController: UIViewController {
     
     // MARK: Actions
     @IBAction func typed(_ sender: Any) {
-        for tf: UITextField in self.textFields {
-            tf.text = tf.text?.uppercased()
-        }
         update()
     }
     
@@ -141,6 +139,7 @@ class FirstViewController: UIViewController {
         field.returnKeyType = UIReturnKeyType.done
         field.clearButtonMode = UITextFieldViewMode.whileEditing;
         field.contentVerticalAlignment = UIControlContentVerticalAlignment.center
+        field.autocapitalizationType = .allCharacters
         field.delegate = self as? UITextFieldDelegate
         self.view.addSubview(field)
         textFields.append(field)
@@ -202,7 +201,7 @@ class FirstViewController: UIViewController {
             for word in perms {
                 for bWord in blanks(word) {
                     if check(word: bWord, dict: dict) {
-                        ret.insert(bWord)
+                        ret.insert(blankPrint(word: word, bWord: bWord))
                     }
                 }
             }
@@ -284,6 +283,58 @@ class FirstViewController: UIViewController {
         }
         return true
     }
+    
+    func blankPrint(word: String, bWord: String) -> String {
+        var text = ""
+        var cases = [Character: Bool]()
+        for letter in bWord {
+            cases[letter] = false
+        }
+        
+        for letter in bWord {
+            if bWord.components(separatedBy: String(letter)).count - 1 >
+               word.components(separatedBy: String(letter)).count - 1 {
+                if cases[letter]! {
+                    text += String(letter).uppercased()
+                } else {
+                    text += String(letter).lowercased()
+                    cases[letter] = true
+                }
+            } else {
+                text += String(letter).uppercased()
+            }
+        }
+        return text
+    }
+    
+    /*
+    def blankPrint(word, rack):
+    text = ''
+    cases = {letter: True for letter in rack}
+    ncases = {letter: True for letter in word}
+    for letter in word:
+        if word.count(letter) > rack.count(letter):
+            if cases.get(letter):
+                text += letter.upper()
+                cases[letter] = False
+            elif ncases.get(letter) and letter not in cases.keys():
+                text += letter.lower()
+            else:
+                text += letter.lower()
+                cases[letter] = False
+        else:
+            text += letter.upper()
+            cases[letter] = False
+    
+    return ''.join(hooks(word.upper(), 'f')), text, ''.join(hooks(word.upper(), 'b'))
+ 
+     def hooks(word, side):
+     hooks = []
+     for letter in string.ascii_uppercase:
+     for word2 in getSomeWords([word[:2], letter+word[0]][side == 'f'], len(word)+1):
+     if [word + letter, letter + word][side == 'f'] == word2:
+     yield letter
+    */
     
     enum SearchError: Error {
         case IllegalCharacter

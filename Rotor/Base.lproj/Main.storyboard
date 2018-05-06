@@ -33,7 +33,7 @@
                                 <rect key="frame" x="16" y="72" width="297" height="30"/>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="allCharacters"/>
                                 <connections>
                                     <action selector="typed:" destination="9pv-A4-QxB" eventType="editingDidEnd" id="xKG-tq-Ik5"/>
                                 </connections>
