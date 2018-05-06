@@ -147,34 +147,44 @@ class FirstViewController: UIViewController {
     
     // MARK: Logic
     func update() {
-        var words = search(mode: types[control.selectedSegmentIndex], text: originalText!.text!)
-        for (c, t) in zip(controls, textFields[1..<textFields.count]) {
-            words = search(mode: types[c.selectedSegmentIndex], text: t.text!, dict: words)
+        do {
+            var words = try search(mode: types[control.selectedSegmentIndex], text: originalText!.text!)
+            for (c, t) in zip(controls, textFields[1..<textFields.count]) {
+                words = try search(mode: types[c.selectedSegmentIndex], text: t.text!, dict: words)
+            }
+            label.text = words.joined(separator: "\n")
+        } catch (SearchError.IllegalCharacter) {
+            label.text = "Illegal Character in Identifier"
+        } catch {
+            label.text = "Unknown processing error: \(error)"
         }
-        label.text = words.joined(separator: "\n")
     }
     
-    func search(mode: String, text: String, dict: [String] = [String]()) -> [String] {
+    func search(mode: String, text: String, dict: [String] = [String]()) throws -> [String] {
+        print(mode, text, dict)
         if (text.count < 2) { return [String]() }
         var ret = Set<String>()
         if mode == self.types[0] {
-            func pattern(dict: Set<String>) {
-                for word in set {
+            let pattern = "^" + text.uppercased() + "$"
+            func re_search(dict: Set<String>) {
+                for word in dict {
                     if word.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil {
                         ret.insert(word)
                     }
                 }
             }
             
-            let pattern = "^" + text.uppercased() + "$"
             if dict.count == 0 {
                 for set in self.dictionaries.values {
-                    pattern(set)
+                    re_search(dict: set)
                 }
             } else {
-                pattern(dict)
+                re_search(dict: Set<String>(dict))
             }
         } else {
+            if !containsOnlyLetters(input: text) {
+                throw SearchError.IllegalCharacter
+            }
             let perms: Set<String>
             if mode == self.types[1] {
                 perms = Set<String>(permute(items: text).map { String($0) })
@@ -211,8 +221,8 @@ class FirstViewController: UIViewController {
     
     func check(word: String, dict: [String] = [String]()) -> Bool {
         if (dict.count == 0) {
-            let pref = String(word[..<word.index(word.startIndex, offsetBy: 2)])
-            return dictionaries[pref] != nil && dictionaries[pref]!.contains(word)
+            let pref = dictionaries[String(word[..<word.index(word.startIndex, offsetBy: 2)])]
+            return pref != nil && pref!.contains(word)
         }
         return dict.contains(word)
     }
@@ -257,6 +267,19 @@ class FirstViewController: UIViewController {
         heap(scratch.count)
         
         return result
+    }
+    
+    func containsOnlyLetters(input: String) -> Bool {
+        for chr in input {
+            if (!(chr >= "a" && chr <= "z") && !(chr >= "A" && chr <= "Z") ) {
+                return false
+            }
+        }
+        return true
+    }
+    
+    enum SearchError: Error {
+        case IllegalCharacter
     }
 }
 
