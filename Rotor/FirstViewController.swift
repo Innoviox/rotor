@@ -16,12 +16,13 @@ class FirstViewController: UIViewController {
     @IBOutlet weak var label: UITextView!
     
     var types = ["Pattern", "Anagram", "Build"];
+    let alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     
     var textFields = [UITextField]();
     var minusButtons = [UIButton]();
     var controls = [UISegmentedControl]();
     var dictionaries = [String: Set<String>]()
-    let alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    var cached = [String: [String]]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -148,9 +149,14 @@ class FirstViewController: UIViewController {
     // MARK: Logic
     func update() {
         do {
-            var words = try search(mode: types[control.selectedSegmentIndex], text: originalText!.text!)
+            var mode = types[control.selectedSegmentIndex], text = originalText!.text!
+            var cache_text = mode + text
+            var words = try search(mode: mode, text: text, cache_text: cache_text)
             for (c, t) in zip(controls, textFields[1..<textFields.count]) {
-                words = try search(mode: types[c.selectedSegmentIndex], text: t.text!, dict: words)
+                mode = types[c.selectedSegmentIndex]
+                text = t.text!
+                cache_text += mode + text
+                words = try search(mode: mode, text: text, cache_text: cache_text, dict: words)
             }
             label.text = words.joined(separator: "\n")
         } catch (SearchError.IllegalCharacter) {
@@ -160,9 +166,11 @@ class FirstViewController: UIViewController {
         }
     }
     
-    func search(mode: String, text: String, dict: [String] = [String]()) throws -> [String] {
-        print(mode, text, dict)
+    func search(mode: String, text: String, cache_text: String, dict: [String] = [String]()) throws -> [String] {
+        print(cache_text)
         if (text.count < 2) { return [String]() }
+        if (cached[cache_text] != nil) { return cached[cache_text]! }
+        
         var ret = Set<String>()
         if mode == self.types[0] {
             let pattern = "^" + text.uppercased() + "$"
@@ -199,12 +207,11 @@ class FirstViewController: UIViewController {
                 }
             }
         }
-        return Array(ret).sorted {
-            if ($0.count == $1.count) {
-                return $0 < $1
-            }
-            return $0.count > $1.count
-        }
+        cached[cache_text] = Array(ret).sorted {
+                                if ($0.count == $1.count) { return $0 < $1 }
+                                return $0.count > $1.count
+                             }
+        return cached[cache_text]!
     }
     
     func blanks(_ word: String) -> [String] {
@@ -271,7 +278,7 @@ class FirstViewController: UIViewController {
     
     func containsOnlyLetters(input: String) -> Bool {
         for chr in input {
-            if (!(chr >= "a" && chr <= "z") && !(chr >= "A" && chr <= "Z") ) {
+            if (chr != "." && !(chr >= "a" && chr <= "z") && !(chr >= "A" && chr <= "Z") ) {
                 return false
             }
         }
