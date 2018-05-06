@@ -30,18 +30,17 @@ class FirstViewController: UIViewController {
     var types = ["Pattern", "Anagram", "Build"];
     let alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     
-    var textFields = [UITextField]();
-    var minusButtons = [UIButton]();
-    var controls = [UISegmentedControl]();
+    var textFields   = [UITextField]()
+    var minusButtons = [UIButton]()
+    var controls     = [UISegmentedControl]()
     var dictionaries = [String: Set<String>]()
-    var cached = [String: [String]]()
+    var cached       = [String: [String]]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         print("Loading")
         
         field_set(originalText)
-        originalText.addTarget(self, action: #selector(FirstViewController.typed(_:)), for: UIControlEvents.editingChanged)
         
         let filePath = Bundle.main.resourcePath!
         for char1 in alph {
@@ -82,7 +81,7 @@ class FirstViewController: UIViewController {
             let control = UISegmentedControl(items: ["P", "A", "B"])
             control.frame = CGRect(x: frame.origin.x, y: CGFloat(frame.origin.y) + (5 + h) * CGFloat(self.textFields.count), width: 50, height: h)
             control.selectedSegmentIndex = 0
-            control.addTarget(self, action: #selector(FirstViewController.change(_:)), for:.valueChanged)
+
             self.view.addSubview(control)
             self.controls.append(control)
             
@@ -153,6 +152,7 @@ class FirstViewController: UIViewController {
         field.contentVerticalAlignment = UIControlContentVerticalAlignment.center
         field.autocapitalizationType = .allCharacters
         field.delegate = self as? UITextFieldDelegate
+        field.addTarget(self, action: #selector(FirstViewController.typed(_:)), for: UIControlEvents.editingChanged)
         self.view.addSubview(field)
         textFields.append(field)
     }
@@ -169,7 +169,9 @@ class FirstViewController: UIViewController {
                 cache_text += mode + text
                 words = try search(mode: mode, text: text, cache_text: cache_text, dict: words)
             }
-            label.text = words.joined(separator: "\n")
+            label.text = words.map {
+                            String(hooks(word: $0, side: Side.Front)) + " \($0) " + String(hooks(word: $0, side: Side.Back))
+                         }.joined(separator: "\n")
         } catch (SearchError.IllegalCharacter) {
             label.text = "Illegal Character in Identifier"
         } catch {
@@ -320,7 +322,7 @@ class FirstViewController: UIViewController {
                 text += String(letter).uppercased()
             }
         }
-        return String(hooks(word: bWord, side: Side.Front)) + " \(text) " + String(hooks(word: bWord, side: Side.Back))
+        return text
     }
     
     func hooks(word: String, side: Side) -> [Character] {
