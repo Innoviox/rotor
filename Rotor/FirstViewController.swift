@@ -8,6 +8,18 @@
 
 import UIKit
 
+func + (left:Character, right:Character) -> String {
+    return "\(left)\(right)"
+}
+
+func + (left:String, right:Character) -> String {
+    return "\(left)\(right)"
+}
+
+func + (left:Character, right:String) -> String {
+    return "\(left)\(right)"
+}
+
 class FirstViewController: UIViewController {
     
     @IBOutlet weak var control: UISegmentedControl!
@@ -225,9 +237,13 @@ class FirstViewController: UIViewController {
         return [word]
     }
     
+    func get_prefix(word: String) -> String {
+        return String(word[..<word.index(word.startIndex, offsetBy: 2)])
+    }
+    
     func check(word: String, dict: [String] = [String]()) -> Bool {
         if (dict.count == 0) {
-            let pref = dictionaries[String(word[..<word.index(word.startIndex, offsetBy: 2)])]
+            let pref = dictionaries[get_prefix(word: word)]
             return pref != nil && pref!.contains(word)
         }
         return dict.contains(word)
@@ -304,40 +320,28 @@ class FirstViewController: UIViewController {
                 text += String(letter).uppercased()
             }
         }
-        return text
+        return String(hooks(word: bWord, side: Side.Front)) + " \(text) " + String(hooks(word: bWord, side: Side.Back))
     }
     
-    /*
-    def blankPrint(word, rack):
-    text = ''
-    cases = {letter: True for letter in rack}
-    ncases = {letter: True for letter in word}
-    for letter in word:
-        if word.count(letter) > rack.count(letter):
-            if cases.get(letter):
-                text += letter.upper()
-                cases[letter] = False
-            elif ncases.get(letter) and letter not in cases.keys():
-                text += letter.lower()
-            else:
-                text += letter.lower()
-                cases[letter] = False
-        else:
-            text += letter.upper()
-            cases[letter] = False
-    
-    return ''.join(hooks(word.upper(), 'f')), text, ''.join(hooks(word.upper(), 'b'))
- 
-     def hooks(word, side):
-     hooks = []
-     for letter in string.ascii_uppercase:
-     for word2 in getSomeWords([word[:2], letter+word[0]][side == 'f'], len(word)+1):
-     if [word + letter, letter + word][side == 'f'] == word2:
-     yield letter
-    */
+    func hooks(word: String, side: Side) -> [Character] {
+        var hooks = [Character]()
+        
+        for letter in alph {
+            let d = dictionaries[(side == Side.Front) ? (letter + word[word.startIndex]) : get_prefix(word: word)]!
+            if (d.contains((side == Side.Front) ? (letter + word) : (word + letter))) {
+                hooks.append(letter)
+            }
+        }
+        
+        return hooks
+    }
     
     enum SearchError: Error {
         case IllegalCharacter
     }
+    
+    enum Side {
+        case Front
+        case Back
+    }
 }
-
