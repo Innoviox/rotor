@@ -175,8 +175,8 @@ class FirstViewController: UIViewController {
             }
             label.text = words.map {
                             if c_hooks[Side.Front]![$0] == nil {
-                                c_hooks[Side.Front] = [$0: String(hooks(word: $0, side: Side.Front))]
-                                c_hooks[Side.Back] = [$0: String(hooks(word: $0, side: Side.Back))]
+                                c_hooks[Side.Front][$0] = String(hooks(word: $0, side: Side.Front))]
+                                c_hooks[Side.Back][$0] = String(hooks(word: $0, side: Side.Back))]
                             }
                             return c_hooks[Side.Front]![$0]! + " \($0) " + c_hooks[Side.Back]![$0]!
                          }.joined(separator: "\n")
