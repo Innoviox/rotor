@@ -163,7 +163,6 @@ class FirstViewController: UIViewController {
     
     // MARK: Logic
     func update() {
-        print(c_hooks)
         do {
             var mode = types[control.selectedSegmentIndex], text = originalText!.text!
             var cache_text = mode + text
@@ -197,7 +196,8 @@ class FirstViewController: UIViewController {
         
         var ret = Set<String>()
         if mode == self.types[0] {
-            let pattern = "^" + text.uppercased() + "$"
+            let pattern = "^" + text.uppercased().replacingOccurrences(of: "@", with: ".*").replacingOccurrences(of: "\\V", with: "[AEIOUaeiou]").replacingOccurrences(of: "\\C", with: "[^AEIOUaeiou]") + "$"
+            print(pattern)
             func re_search(dict: Set<String>) {
                 for word in dict {
                     if word.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil {
