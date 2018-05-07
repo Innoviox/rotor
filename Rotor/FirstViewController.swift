@@ -35,7 +35,8 @@ class FirstViewController: UIViewController {
     var controls     = [UISegmentedControl]()
     var dictionaries = [String: Set<String>]()
     var cached       = [String: [String]]()
-    
+    var c_hooks      = [Side: [String: String]]()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         print("Loading")
@@ -45,7 +46,7 @@ class FirstViewController: UIViewController {
         let filePath = Bundle.main.resourcePath!
         for char1 in alph {
             for char2 in alph {
-                let diphth = String(char1) + String(char2)
+                let diphth = char1 + char2
                 dictionaries[diphth] = Set<String>();
                 let reader = StreamReader(path: filePath + "/" + diphth + ".txt")
                 while let line = reader?.nextLine() {
@@ -53,6 +54,9 @@ class FirstViewController: UIViewController {
                 }
             }
         }
+        
+        c_hooks[Side.Front] = [String: String]()
+        c_hooks[Side.Back] = [String: String]()
         
         label.text = ""
         label.font = UIFont(name: "Courier New", size: UIFont.systemFontSize)
@@ -170,13 +174,19 @@ class FirstViewController: UIViewController {
                 words = try search(mode: mode, text: text, cache_text: cache_text, dict: words)
             }
             label.text = words.map {
-                            String(hooks(word: $0, side: Side.Front)) + " \($0) " + String(hooks(word: $0, side: Side.Back))
+                            if c_hooks[Side.Front]![$0] == nil {
+                                c_hooks[Side.Front] = [$0: String(hooks(word: $0, side: Side.Front))]
+                                c_hooks[Side.Back] = [$0: String(hooks(word: $0, side: Side.Back))]
+                            }
+                            return c_hooks[Side.Front]![$0]! + " \($0) " + c_hooks[Side.Back]![$0]!
                          }.joined(separator: "\n")
         } catch (SearchError.IllegalCharacter) {
             label.text = "Illegal Character in Identifier"
         } catch {
             label.text = "Unknown processing error: \(error)"
         }
+        
+
     }
     
     func search(mode: String, text: String, cache_text: String, dict: [String] = [String]()) throws -> [String] {
