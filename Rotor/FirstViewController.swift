@@ -173,8 +173,9 @@ class FirstViewController: UIViewController {
                 cache_text += mode + text
                 words = try search(mode: mode, text: text, cache_text: cache_text, dict: words, new: true)
             }
-            print(words)
-            label.text = words.map {
+
+            label.text = "\(words.count) results found.\n" + 
+                         words.map {
                             if c_hooks[Side.Front]![$0] == nil {
                                 c_hooks[Side.Front]![$0] = String(hooks(word: $0, side: Side.Front))
                                 c_hooks[Side.Back]![$0] = String(hooks(word: $0, side: Side.Back))
@@ -192,6 +193,8 @@ class FirstViewController: UIViewController {
     
     func search(mode: String, text: String, cache_text: String, dict: [String] = [String](), new: Bool = false) throws -> [String] {
         print(cache_text)
+        
+        if (mode != self.types[0] && !containsOnlyLetters(input: text)) { throw SearchError.IllegalCharacter }
         if (text.count < 2) { return [String]() }
         if (cached[cache_text] != nil) { return cached[cache_text]! }
         
@@ -212,7 +215,7 @@ class FirstViewController: UIViewController {
             if !containsOnlyLetters(input: text) {
                 throw SearchError.IllegalCharacter
             }
-            for word in mode == self.types[1] ? Set<String>(permute(items: text).map { String($0) }) :combinations(list: text.map { String($0) }) {
+            for word in mode == self.types[1] ? Set<String>(permute(items: text).map { String($0) }) : combinations(list: text.map { String($0) }) {
                 ret = ret.union(blanks(word).filter { check(word: $0, dict: dict) })
             }
         }
