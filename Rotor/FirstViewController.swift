@@ -197,19 +197,13 @@ class FirstViewController: UIViewController {
         var ret = Set<String>()
         if mode == self.types[0] {
             let pattern = "^" + text.uppercased().replacingOccurrences(of: "@", with: ".*").replacingOccurrences(of: "\\V", with: "[AEIOUaeiou]").replacingOccurrences(of: "\\C", with: "[^AEIOUaeiou]") + "$"
-            print(pattern)
+
             func re_search(dict: Set<String>) {
-                for word in dict {
-                    if word.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil {
-                        ret.insert(word)
-                    }
-                }
+                ret = ret.union(dict.filter { $0.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil })
             }
             
             if dict.count == 0 {
-                for set in self.dictionaries.values {
-                    re_search(dict: set)
-                }
+                self.dictionaries.values.map { re_search(dict: $0) }
             } else {
                 re_search(dict: Set<String>(dict))
             }
@@ -217,18 +211,8 @@ class FirstViewController: UIViewController {
             if !containsOnlyLetters(input: text) {
                 throw SearchError.IllegalCharacter
             }
-            let perms: Set<String>
-            if mode == self.types[1] {
-                perms = Set<String>(permute(items: text).map { String($0) })
-            } else {
-                perms = combinations(list: text.map { String($0) })
-            }
-            for word in perms {
-                for bWord in blanks(word) {
-                    if check(word: bWord, dict: dict) {
-                        ret.insert(blankPrint(word: word, bWord: bWord))
-                    }
-                }
+            for word in mode == self.types[1] ? Set<String>(permute(items: text).map { String($0) }) : combinations(list: text.map { String($0) }) {
+                ret = ret.union(blanks(word).filter { check(word: $0, dict: dict) })
             }
         }
         cached[cache_text] = Array(ret).sorted {
