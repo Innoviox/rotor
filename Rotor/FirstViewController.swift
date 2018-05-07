@@ -171,8 +171,9 @@ class FirstViewController: UIViewController {
                 mode = types[c.selectedSegmentIndex]
                 text = t.text!
                 cache_text += mode + text
-                words = try search(mode: mode, text: text, cache_text: cache_text, dict: words)
+                words = try search(mode: mode, text: text, cache_text: cache_text, dict: words, new: true)
             }
+            print(words)
             label.text = words.map {
                             if c_hooks[Side.Front]![$0] == nil {
                                 c_hooks[Side.Front]![$0] = String(hooks(word: $0, side: Side.Front))
@@ -189,7 +190,7 @@ class FirstViewController: UIViewController {
 
     }
     
-    func search(mode: String, text: String, cache_text: String, dict: [String] = [String]()) throws -> [String] {
+    func search(mode: String, text: String, cache_text: String, dict: [String] = [String](), new: Bool = false) throws -> [String] {
         print(cache_text)
         if (text.count < 2) { return [String]() }
         if (cached[cache_text] != nil) { return cached[cache_text]! }
@@ -202,7 +203,7 @@ class FirstViewController: UIViewController {
                 ret = ret.union(dict.filter { $0.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil })
             }
             
-            if dict.count == 0 {
+            if !new && dict.count == 0 {
                 self.dictionaries.values.map { re_search(dict: $0) }
             } else {
                 re_search(dict: Set<String>(dict))
@@ -211,7 +212,7 @@ class FirstViewController: UIViewController {
             if !containsOnlyLetters(input: text) {
                 throw SearchError.IllegalCharacter
             }
-            for word in mode == self.types[1] ? Set<String>(permute(items: text).map { String($0) }) : combinations(list: text.map { String($0) }) {
+            for word in mode == self.types[1] ? Set<String>(permute(items: text).map { String($0) }) :combinations(list: text.map { String($0) }) {
                 ret = ret.union(blanks(word).filter { check(word: $0, dict: dict) })
             }
         }
