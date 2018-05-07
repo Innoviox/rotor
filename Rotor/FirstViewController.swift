@@ -163,6 +163,7 @@ class FirstViewController: UIViewController {
     
     // MARK: Logic
     func update() {
+        print(c_hooks)
         do {
             var mode = types[control.selectedSegmentIndex], text = originalText!.text!
             var cache_text = mode + text
@@ -339,8 +340,8 @@ class FirstViewController: UIViewController {
         var hooks = [Character]()
         
         for letter in alph {
-            let d = dictionaries[(side == Side.Front) ? (letter + word[word.startIndex]) : get_prefix(word: word)]!
-            if (d.contains((side == Side.Front) ? (letter + word) : (word + letter))) {
+            let d = dictionaries[((side == Side.Front) ? (letter + word[word.startIndex]) : get_prefix(word: word)).uppercased()]!
+            if (d.contains(((side == Side.Front) ? (letter + word) : (word + letter)).uppercased())) {
                 hooks.append(letter)
             }
         }
