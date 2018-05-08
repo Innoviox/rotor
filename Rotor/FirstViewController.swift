@@ -225,13 +225,12 @@ class FirstViewController: UIViewController {
     func update() {
         do {
             var mode = types[control.selectedSegmentIndex], text = originalText!.text!
-            var cache_text = mode[mode.startIndex] + text
             var cache_text = String(mode[mode.startIndex]).lowercased() + text
             var words = try search(mode: mode, text: text, cache_text: cache_text)
             for (c, t) in zip(controls, textFields[1..<textFields.count]) {
                 mode = types[c.selectedSegmentIndex]
                 text = t.text!
-                cache_text += mode[mode.startIndex] + text
+                cache_text += String(mode[mode.startIndex]).lowercased() + text
                 words = try search(mode: mode, text: text, cache_text: cache_text, dict: words, new: true)
             }
 
