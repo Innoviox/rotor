@@ -70,6 +70,7 @@ class FirstViewController: UIViewController {
     
     // MARK: Actions
     @IBAction func typed(_ sender: Any) {
+        for tf in textFields { tf.text = tf.text!.uppercased() }
         update()
     }
     
@@ -203,11 +204,18 @@ class FirstViewController: UIViewController {
             let pattern = "^" + text.uppercased().replacingOccurrences(of: "@", with: ".*").replacingOccurrences(of: "\\V", with: "[AEIOUaeiou]").replacingOccurrences(of: "\\C", with: "[^AEIOUaeiou]") + "$"
 
             func re_search(dict: Set<String>) {
-                ret = ret.union(dict.filter { $0.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil })
+                // ret = ret.union(dict.filter { $0.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil })
+                for word in dict {
+                    if word.range(of: pattern, options: .regularExpression) != nil {
+                        ret.insert(word)
+                    }
+                }
             }
             
             if !new && dict.count == 0 {
-                self.dictionaries.values.map { re_search(dict: $0) }
+                for dict in self.dictionaries.values {
+                    re_search(dict: dict)
+                }
             } else {
                 re_search(dict: Set<String>(dict))
             }
@@ -215,20 +223,11 @@ class FirstViewController: UIViewController {
             if !containsOnlyLetters(input: text) {
                 throw SearchError.IllegalCharacter
             }
-            
-            var semi_cache_text: String = ""
-            var semi_cache: [String] = [String]()
-            for (c_t, cache) in cached {
-                if text.range(of: c_t.dropFirst()) != nil && c_t.starts(with: String(mode[mode.startIndex])) {
-                    if c_t.count > semi_cache_text.count {
-                        semi_cache_text = c_t
-                        semi_cache = cache
-                    }
-                }
-            }
-            print("B", semi_cache_text)
-            for word in mode == self.types[1] ? Set<String>(permute(items: text).map { String($0) }) : combinations(list: text.map { String($0) }) {
-                ret = ret.union(blanks(word).filter { check(word: $0, dict: dict) })
+
+            for word in mode == self.types[1] ?
+                Set<String>(permute(items: text).map { String($0) }) :
+                combinations(list: text.map { String($0) }) {
+                    ret = ret.union(blanks(word).filter { check(word: $0, dict: dict) }.map { blankPrint(word: word, bWord: $0) })
             }
         }
         cached[cache_text] = Array(ret).sorted {
