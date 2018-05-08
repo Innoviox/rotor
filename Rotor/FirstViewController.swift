@@ -165,16 +165,16 @@ class FirstViewController: UIViewController {
     func update() {
         do {
             var mode = types[control.selectedSegmentIndex], text = originalText!.text!
-            var cache_text = mode + text
+            var cache_text = mode[mode.startIndex] + text
             var words = try search(mode: mode, text: text, cache_text: cache_text)
             for (c, t) in zip(controls, textFields[1..<textFields.count]) {
                 mode = types[c.selectedSegmentIndex]
                 text = t.text!
-                cache_text += mode + text
+                cache_text += mode[mode.startIndex] + text
                 words = try search(mode: mode, text: text, cache_text: cache_text, dict: words, new: true)
             }
 
-            label.text = "\(words.count) results found.\n" + 
+            label.text = "\(words.count) result" + (words.count == 1 ? "" : "s") + " found.\n" + 
                          words.map {
                             if c_hooks[Side.Front]![$0] == nil {
                                 c_hooks[Side.Front]![$0] = String(hooks(word: $0, side: Side.Front))
@@ -215,6 +215,18 @@ class FirstViewController: UIViewController {
             if !containsOnlyLetters(input: text) {
                 throw SearchError.IllegalCharacter
             }
+            
+            var semi_cache_text: String = ""
+            var semi_cache: [String] = [String]()
+            for (c_t, cache) in cached {
+                if text.range(of: c_t.dropFirst()) != nil && c_t.starts(with: String(mode[mode.startIndex])) {
+                    if c_t.count > semi_cache_text.count {
+                        semi_cache_text = c_t
+                        semi_cache = cache
+                    }
+                }
+            }
+            print("B", semi_cache_text)
             for word in mode == self.types[1] ? Set<String>(permute(items: text).map { String($0) }) : combinations(list: text.map { String($0) }) {
                 ret = ret.union(blanks(word).filter { check(word: $0, dict: dict) })
             }
@@ -290,6 +302,19 @@ class FirstViewController: UIViewController {
         heap(scratch.count)
         
         return result
+    }
+    
+    func addPerm(old: [String], letter: String) -> [String] {
+        var ret = [String]()
+        
+        for word in old {
+            for i in 0..<word.count {
+                let idx = word.index(word.startIndex, offsetBy: i)
+                ret.append(String(word[...idx]) + String(letter) + String(word)[idx...])
+            }
+        }
+        
+        return old + ret
     }
     
     func containsOnlyLetters(input: String) -> Bool {
