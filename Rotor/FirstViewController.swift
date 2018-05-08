@@ -20,6 +20,66 @@ func + (left:Character, right:String) -> String {
     return "\(left)\(right)"
 }
 
+
+extension Array
+{
+    public func permutations(of group:Int? = nil) -> [[Element]]
+    {
+        let group       = group ?? count
+        var result      : [[Element]] = []
+        var permutation : [Element]   = []
+        
+        func permute(from baseIndex:Int)
+        {
+            if baseIndex == permutation.count - 1
+            {
+                result.append(permutation)
+                return
+            }
+            
+            permute(from:baseIndex+1)
+            
+            for index in baseIndex+1..<permutation.count
+            {
+                permutation.swapAt(baseIndex, index)
+                permute(from:baseIndex+1)
+            }
+            let baseElement = permutation[baseIndex]
+            permutation.remove(at:baseIndex)
+            permutation.append(baseElement)
+        }
+        
+        var comboIndexes = (0..<group).map{$0}
+        
+        let fullCombo   = group - 1
+        let indexLimit  = count - fullCombo
+        
+        var carry = fullCombo
+        
+        while carry >= 0
+        {
+            if carry == fullCombo
+            {
+                permutation = comboIndexes.map{self[$0]}
+                permute(from:0)
+            }
+            
+            comboIndexes[carry] += 1
+            
+            if comboIndexes[carry] == carry + indexLimit
+            { carry -= 1 ; continue }
+            
+            while carry < fullCombo
+            {
+                carry += 1
+                comboIndexes[carry] = comboIndexes[carry-1] + 1
+            }
+        }
+        
+        return result
+    }
+}
+
 class FirstViewController: UIViewController {
     
     @IBOutlet weak var control: UISegmentedControl!
@@ -36,7 +96,7 @@ class FirstViewController: UIViewController {
     var dictionaries = [String: Set<String>]()
     var cached       = [String: [String]]()
     var c_hooks      = [Side: [String: String]]()
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         print("Loading")
@@ -166,6 +226,7 @@ class FirstViewController: UIViewController {
         do {
             var mode = types[control.selectedSegmentIndex], text = originalText!.text!
             var cache_text = mode[mode.startIndex] + text
+            var cache_text = String(mode[mode.startIndex]).lowercased() + text
             var words = try search(mode: mode, text: text, cache_text: cache_text)
             for (c, t) in zip(controls, textFields[1..<textFields.count]) {
                 mode = types[c.selectedSegmentIndex]
@@ -207,7 +268,9 @@ class FirstViewController: UIViewController {
             }
             
             if !new && dict.count == 0 {
-                self.dictionaries.values.map { re_search(dict: $0) }
+                for dict in self.dictionaries.values {
+                    re_search(dict: dict)
+                }
             } else {
                 re_search(dict: Set<String>(dict))
             }
@@ -216,18 +279,9 @@ class FirstViewController: UIViewController {
                 throw SearchError.IllegalCharacter
             }
             
-            var semi_cache_text: String = ""
-            var semi_cache: [String] = [String]()
-            for (c_t, cache) in cached {
-                if text.range(of: c_t.dropFirst()) != nil && c_t.starts(with: String(mode[mode.startIndex])) {
-                    if c_t.count > semi_cache_text.count {
-                        semi_cache_text = c_t
-                        semi_cache = cache
-                    }
-                }
-            }
-            print("B", semi_cache_text)
-            for word in mode == self.types[1] ? Set<String>(permute(items: text).map { String($0) }) : combinations(list: text.map { String($0) }) {
+            for word in mode == self.types[1] ?
+                permute(str: text, min: text.count) :
+                permute(str: text, min: 2) {
                 ret = ret.union(blanks(word).filter { check(word: $0, dict: dict) })
             }
         }
@@ -262,9 +316,12 @@ class FirstViewController: UIViewController {
         return dict.contains(word)
     }
     
-    func combinations(list: [String]) -> Set<String> {
+    /*
+    func permute(str: String, min: Int) -> Set<String> {
+        print(str, min)
         func permute(fromList: [String], toList: [String], set: inout Set<String>) {
-            if toList.count >= 2 {
+            print(fromList, toList, set)
+            if toList.count >= min {
                 set.insert(toList.joined(separator: ""))
             }
             if !fromList.isEmpty {
@@ -277,17 +334,20 @@ class FirstViewController: UIViewController {
         }
         
         var set = Set<String>()
-        permute(fromList: list, toList:[], set: &set)
+        permute(fromList: str.map { String($0) }, toList:[], set: &set)
         return set
     }
+    */
     
-    func permute<C: Collection>(items: C) -> [[C.Iterator.Element]] {
-        var scratch = Array(items)
-        var result: [[C.Iterator.Element]] = []
+    /*
+    func permute(str: String) -> Set<String> {
+        var scratch = Array(str)
+        var result = Set<String>()
         
         func heap(_ n: Int) {
+            print(scratch, n, result)
             if n == 1 {
-                result.append(scratch)
+                result.insert(String(scratch))
                 return
             }
             
@@ -303,19 +363,81 @@ class FirstViewController: UIViewController {
         
         return result
     }
+    */
     
-    func addPerm(old: [String], letter: String) -> [String] {
-        var ret = [String]()
+    func permute(str: String, min: Int) -> Set<String> {
+        print(str, min)
+        func _permute(prefix: String, input: String) -> Set<String> {
+            print(prefix, input)
+            let prefixCharacters = Array(prefix)
+            var inputCharacters = Array(input)
+            var result = Set<String>()
+            let n = inputCharacters.count
+            
+            if n == min {
+                result.insert(prefix)
+            } else {
+                for i in min..<n {
+                    let prefixAndCharacterAtIndex = String(prefixCharacters) + String(inputCharacters[i])
+                    let subStringBeforeIndex = String(inputCharacters[0..<i])
+                    let subStringAfterIndex =  String(inputCharacters [i+1..<n])
+                    result = result.union(_permute(prefix: prefixAndCharacterAtIndex, input: subStringBeforeIndex + subStringAfterIndex))
+                }
+            }
+            
+            return result
+        }
         
-        for word in old {
-            for i in 0..<word.count {
-                let idx = word.index(word.startIndex, offsetBy: i)
-                ret.append(String(word[...idx]) + String(letter) + String(word)[idx...])
+        return _permute(prefix: "", input: str)
+    }
+    
+    /*
+    func permute(_ str: String) -> Set<String> {
+        func _permute(_ str: String, prefix: String, set: inout Set<String>) {
+            if str.count == 0 {
+                set.insert(prefix)
+            }
+            
+            for i in str.indices {
+                if str[i] != "." {
+                    let left    = str[...i]
+                    let right   = str[i...]
+                    
+                    let rem = left + right
+                    _permute(String(rem), prefix: prefix + String(str[i]), set: &set)
+                }
             }
         }
         
-        return old + ret
+        var set = Set<String>()
+        
+        _permute(str, prefix: "", set: &set)
+        
+        return set
     }
+    */
+    
+    /*
+    func permute(str: String, range: CountableRange<Int>) -> Set<String> {
+        var set = Set<String>()
+        
+        func _permute(_ n: Int, _ a: inout Array<Character>) {
+            if n == 1 {set.insert(String(a)); return}
+            for i in 0..<n-1 {
+                _permute(n-1,&a)
+                a.swapAt(n-1, (n%2 == 1) ? 0 : i)
+            }
+            _permute(n-1,&a)
+        }
+        
+        var arr = Array(str)
+        for i in range {
+            _permute(i, &arr)
+        }
+        
+        return set
+    }
+    */
     
     func containsOnlyLetters(input: String) -> Bool {
         for chr in input {
@@ -369,5 +491,11 @@ class FirstViewController: UIViewController {
     enum Side {
         case Front
         case Back
+    }
+    
+    enum Mode {
+        case Pattern
+        case Anagram
+        case Build
     }
 }
