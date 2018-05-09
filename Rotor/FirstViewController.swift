@@ -218,10 +218,8 @@ class FirstViewController: UIViewController {
                 let prefix = get_prefix(word: pattern)
                 if containsOnlyLetters(input: prefix) {
                     for bPref in blanks(prefix) {
-                        print(bPref)
                         re_search(dict: dictionaries[bPref]!)
                     }
-                // } else if prefix == "[A" {
                 } else {
                     for dict in self.dictionaries.values {
                         re_search(dict: dict)
@@ -230,27 +228,14 @@ class FirstViewController: UIViewController {
             } else {
                 re_search(dict: Set<String>(dict))
             }
-            
-            /*
-             let pattern = "^" + text.uppercased().replacingOccurrences(of: "@", with: ".*").replacingOccurrences(of: "\\V", with: "[AEIOUaeiou]").replacingOccurrences(of: "\\C", with: "[^AEIOUaeiou]") + "$"
-             
-             if !new && dict.count == 0 {
-             for dict in self.dictionaries.values {
-             re_search(dict: dict)
-             }
-             } else {
-             re_search(dict: Set<String>(dict))
-             }
-             */
-            
         } else {
             if !containsOnlyLetters(input: text) {
                 throw SearchError.IllegalCharacter
             }
 
             for word in mode == self.types[1] ?
-                Set<String>(permute(items: text).map { String($0) }) :
-                combinations(list: text.map { String($0) }) {
+                permute(str: text) :
+                combinations(str: text) {
                     ret = ret.union(blanks(word).filter { check(word: $0, dict: dict) }.map { blankPrint(word: word, bWord: $0) })
             }
         }
@@ -285,7 +270,7 @@ class FirstViewController: UIViewController {
         return dict.contains(word)
     }
     
-    func combinations(list: [String]) -> Set<String> {
+    func combinations(str: String) -> Set<String> {
         func permute(fromList: [String], toList: [String], set: inout Set<String>) {
             if toList.count >= 2 {
                 set.insert(toList.joined(separator: ""))
@@ -300,17 +285,17 @@ class FirstViewController: UIViewController {
         }
         
         var set = Set<String>()
-        permute(fromList: list, toList:[], set: &set)
+        permute(fromList: str.map { String($0) }, toList:[], set: &set)
         return set
     }
     
-    func permute<C: Collection>(items: C) -> [[C.Iterator.Element]] {
-        var scratch = Array(items)
-        var result: [[C.Iterator.Element]] = []
+    func permute(str: String) -> Set<String> {
+        var scratch = str.map { String($0) }
+        var result = Set<String>()
         
         func heap(_ n: Int) {
             if n == 1 {
-                result.append(scratch)
+                result.insert(scratch.joined(separator: ""))
                 return
             }
             
