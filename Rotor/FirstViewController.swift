@@ -36,7 +36,9 @@ class FirstViewController: UIViewController {
     var dictionaries = [String: Set<String>]()
     var cached       = [String: [String]]()
     var c_hooks      = [Side: [String: String]]()
-
+    
+    // var prefixes = ["[A": "AEIOU", "[^": "BCDFGHJKLMNPQRSTVWXYZ", "." : "."]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         print("Loading")
@@ -45,6 +47,7 @@ class FirstViewController: UIViewController {
         
         let filePath = Bundle.main.resourcePath!
         for char1 in alph {
+            // prefixes[String(char1)] = String(char1)
             for char2 in alph {
                 let diphth = char1 + char2
                 dictionaries[diphth] = Set<String>();
@@ -201,24 +204,45 @@ class FirstViewController: UIViewController {
         
         var ret = Set<String>()
         if mode == self.types[0] {
-            let pattern = "^" + text.uppercased().replacingOccurrences(of: "@", with: ".*").replacingOccurrences(of: "\\V", with: "[AEIOUaeiou]").replacingOccurrences(of: "\\C", with: "[^AEIOUaeiou]") + "$"
-
+            let pattern = text.uppercased().replacingOccurrences(of: "?", with: ".").replacingOccurrences(of: "@", with: ".*").replacingOccurrences(of: "\\V", with: "[AEIOUaeiou]").replacingOccurrences(of: "\\C", with: "[^AEIOUaeiou]")
             func re_search(dict: Set<String>) {
                 // ret = ret.union(dict.filter { $0.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil })
                 for word in dict {
-                    if word.range(of: pattern, options: .regularExpression) != nil {
+                    if word.range(of: "^" + pattern + "$", options: .regularExpression) != nil {
                         ret.insert(word)
                     }
                 }
             }
             
             if !new && dict.count == 0 {
-                for dict in self.dictionaries.values {
-                    re_search(dict: dict)
+                let prefix = get_prefix(word: pattern)
+                if containsOnlyLetters(input: prefix) {
+                    for bPref in blanks(prefix) {
+                        print(bPref)
+                        re_search(dict: dictionaries[bPref]!)
+                    }
+                // } else if prefix == "[A" {
+                } else {
+                    for dict in self.dictionaries.values {
+                        re_search(dict: dict)
+                    }
                 }
             } else {
                 re_search(dict: Set<String>(dict))
             }
+            
+            /*
+             let pattern = "^" + text.uppercased().replacingOccurrences(of: "@", with: ".*").replacingOccurrences(of: "\\V", with: "[AEIOUaeiou]").replacingOccurrences(of: "\\C", with: "[^AEIOUaeiou]") + "$"
+             
+             if !new && dict.count == 0 {
+             for dict in self.dictionaries.values {
+             re_search(dict: dict)
+             }
+             } else {
+             re_search(dict: Set<String>(dict))
+             }
+             */
+            
         } else {
             if !containsOnlyLetters(input: text) {
                 throw SearchError.IllegalCharacter
@@ -249,8 +273,8 @@ class FirstViewController: UIViewController {
         return [word]
     }
     
-    func get_prefix(word: String) -> String {
-        return String(word[..<word.index(word.startIndex, offsetBy: 2)])
+    func get_prefix(word: String, offset: Int = 2) -> String {
+        return String(word[..<word.index(word.startIndex, offsetBy: offset)])
     }
     
     func check(word: String, dict: [String] = [String]()) -> Bool {
