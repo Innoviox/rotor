@@ -234,8 +234,8 @@ class FirstViewController: UIViewController {
             }
 
             for word in mode == self.types[1] ?
-                permute(str: text) :
-                combinations(str: text) {
+                combinations(str: text, min: text.count) :
+                combinations(str: text, min: 2) {
                     ret = ret.union(blanks(word).filter { check(word: $0, dict: dict) }.map { blankPrint(word: word, bWord: $0) })
             }
         }
@@ -270,9 +270,9 @@ class FirstViewController: UIViewController {
         return dict.contains(word)
     }
     
-    func combinations(str: String) -> Set<String> {
+    func combinations(str: String, min: Int) -> Set<String> {
         func permute(fromList: [String], toList: [String], set: inout Set<String>) {
-            if toList.count >= 2 {
+            if toList.count >= min {
                 set.insert(toList.joined(separator: ""))
             }
             if !fromList.isEmpty {
@@ -288,43 +288,7 @@ class FirstViewController: UIViewController {
         permute(fromList: str.map { String($0) }, toList:[], set: &set)
         return set
     }
-    
-    func permute(str: String) -> Set<String> {
-        var scratch = str.map { String($0) }
-        var result = Set<String>()
-        
-        func heap(_ n: Int) {
-            if n == 1 {
-                result.insert(scratch.joined(separator: ""))
-                return
-            }
-            
-            for i in 0..<n-1 {
-                heap(n-1)
-                let j = (n%2 == 1) ? 0 : i
-                scratch.swapAt(j, n-1)
-            }
-            heap(n-1)
-        }
-        
-        heap(scratch.count)
-        
-        return result
-    }
-    
-    func addPerm(old: [String], letter: String) -> [String] {
-        var ret = [String]()
-        
-        for word in old {
-            for i in 0..<word.count {
-                let idx = word.index(word.startIndex, offsetBy: i)
-                ret.append(String(word[...idx]) + String(letter) + String(word)[idx...])
-            }
-        }
-        
-        return old + ret
-    }
-    
+
     func containsOnlyLetters(input: String) -> Bool {
         for chr in input {
             if (chr != "." && !(chr >= "a" && chr <= "z") && !(chr >= "A" && chr <= "Z") ) {
