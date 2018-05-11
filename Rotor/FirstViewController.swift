@@ -186,14 +186,78 @@ class FirstViewController: UIViewController {
                 result = try search(mode: mode, text: text, cache_text: cache_text, dict: result, new: true)
             }
 
-            label.text = "\(words.count) result" + (words.count == 1 ? "" : "s") + " found.\n" + 
-                         words.map {
-                            if c_hooks[Side.Front]![$0] == nil {
-                                c_hooks[Side.Front]![$0] = String(hooks(word: $0, side: Side.Front))
-                                c_hooks[Side.Back]![$0] = String(hooks(word: $0, side: Side.Back))
-                            }
-                            return c_hooks[Side.Front]![$0]! + " \($0) " + c_hooks[Side.Back]![$0]!
-                         }.joined(separator: "\n")
+            let fwb: [[String]] = result.map { (word) -> [String] in
+                                    if c_hooks[Side.Front]![word] == nil {
+                                        c_hooks[Side.Front]![word] = String(hooks(word: word, side: Side.Front))
+                                        c_hooks[Side.Back]![word] = String(hooks(word: word, side: Side.Back))
+                                    }
+                                    return [c_hooks[Side.Front]![word]!, " \(word) ", c_hooks[Side.Back]![word]!]
+                                 }
+            words.text = fwb.map { $0.joined(separator: " ") }.joined(separator: "\n")
+            /*
+            // var ft = "\n", wt = "\(result.count) result" + (result.count == 1 ? "" : "s") + " found.\n", bt = "\n"
+            // var attrText = NSMutableAttributedString()
+            for l in fwb {
+                print(l)
+                // ft += l[0] + "\n"
+                // wt += l[1] + "\n"
+                // bt += l[2] + "\n"
+                print("HI")
+                let textString = "\(l[0]) \(l[1]) \(l[2])\n"
+                // let attrText = NSMutableAttributedString(string: textString)
+                // attrText += textString
+                print("HI")
+                //  Convert textString to NSString because attrText.addAttribute takes an NSRange.
+                let fRange = (textString as NSString).range(of: l[0])
+                let wRange = (textString as NSString).range(of: l[1])
+                let bRange = (textString as NSString).range(of: l[2])
+                print("HI")
+                print(textString)
+                print(fRange, wRange, bRange)
+                if l[0] != "" {
+                    attrText.addAttribute(kCTFontAttributeName as NSAttributedStringKey, value: smallFont!, range: fRange)
+                }
+                print("BY")
+                attrText.addAttribute(kCTFontAttributeName as NSAttributedStringKey, value: largeFont!, range: wRange)
+                print("BY2")
+                if l[2] != "" {
+                    attrText.addAttribute(kCTFontAttributeName as NSAttributedStringKey, value: smallFont!, range: bRange)
+                }
+                print("HI")
+            }
+            // words.text = wt
+            words.attributedText = attrText
+            */
+            /*
+            let htmlString = "<font color=\"red\">This is  </font> <font color=\"blue\"> some text!</font>"
+            
+            let encodedData = htmlString.data(using: String.Encoding.utf8)!
+            let attributedOptions = [NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType]
+            do {
+                let attributedString = try NSAttributedString(data: encodedData, options: attributedOptions, documentAttributes: nil)
+                label.attributedText = attributedString
+ 
+            } catch _ {
+                print("Cannot create attributed String")
+            }
+            */
+            //<center>
+            /*
+            var s = "<h5>\(result.count) result" + (result.count == 1 ? "" : "s") + " found.</h5><br>"
+            for l in fwb {
+                s += "<small>\(l[0])</small> \(l[1]) <small>\(l[2])</small><br>"
+            }
+            //s += "</center>"
+            let encodedData = s.data(using: String.Encoding.utf8)!
+            let attributedOptions = [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.html]
+            do {
+                let attributedString = try NSAttributedString(data: encodedData, options: attributedOptions, documentAttributes: nil)
+                words.attributedText = attributedString
+                
+            } catch _ {
+                print("Cannot create attributed String")
+            }
+            */
         } catch (SearchError.IllegalCharacter) {
             words.text = "Illegal Character in Identifier"
         } catch {
