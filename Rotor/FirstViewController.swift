@@ -25,10 +25,14 @@ class FirstViewController: UIViewController {
     @IBOutlet weak var control: UISegmentedControl!
     @IBOutlet weak var addButton: UIButton!
     @IBOutlet weak var originalText: UITextField!
-    @IBOutlet weak var label: UITextView!
+    
+    @IBOutlet weak var words: UITextView!
     
     var types = ["Pattern", "Anagram", "Build"];
     let alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    
+    let largeFont = UIFont(name: "Arial", size: UIFont.systemFontSize)
+    let smallFont = UIFont(name: "Arial", size: 12)
     
     var textFields   = [UITextField]()
     var minusButtons = [UIButton]()
@@ -61,8 +65,7 @@ class FirstViewController: UIViewController {
         c_hooks[Side.Front] = [String: String]()
         c_hooks[Side.Back] = [String: String]()
         
-        label.text = ""
-        label.font = UIFont(name: "Courier New", size: UIFont.systemFontSize)
+        words.text = ""
         
         print("Loaded")
     }
@@ -105,8 +108,11 @@ class FirstViewController: UIViewController {
             self.view.addSubview(newButton)
             self.minusButtons.append(newButton)
             
-            frame = self.label.frame
-            self.label.frame = CGRect(x: frame.origin.x, y: frame.origin.y + h + 5, width: frame.size.width, height: frame.size.height - h - 5)
+            for tv in [words] {
+                frame = (tv?.frame)!
+                tv?.frame = CGRect(x: frame.origin.x, y: frame.origin.y + h + 5, width: frame.size.width, height: frame.size.height - h - 5)
+            }
+            
         }
     }
     
@@ -142,8 +148,10 @@ class FirstViewController: UIViewController {
             self.controls.remove(at: idx!)
             
             let h = self.addButton.frame.size.height
-            let frame = self.label.frame
-            self.label.frame = CGRect(x: frame.origin.x, y: frame.origin.y - h - 5, width: frame.size.width, height: frame.size.height + h + 5)
+            for tv in [words] {
+                let frame = (tv?.frame)!
+                tv?.frame = CGRect(x: frame.origin.x, y: frame.origin.y - h - 5, width: frame.size.width, height: frame.size.height + h + 5)
+            }
             
             self.update()
         }
@@ -168,14 +176,14 @@ class FirstViewController: UIViewController {
     // MARK: Logic
     func update() {
         do {
-            var mode = types[control.selectedSegmentIndex], text = originalText!.text!
+            var mode = String(types[control.selectedSegmentIndex]).lowercased(), text = originalText!.text!
             var cache_text = mode[mode.startIndex] + text
-            var words = try search(mode: mode, text: text, cache_text: cache_text)
+            var result = try search(mode: mode, text: text, cache_text: cache_text)
             for (c, t) in zip(controls, textFields[1..<textFields.count]) {
                 mode = types[c.selectedSegmentIndex]
                 text = t.text!
-                cache_text += mode[mode.startIndex] + text
-                words = try search(mode: mode, text: text, cache_text: cache_text, dict: words, new: true)
+                cache_text += String(mode[mode.startIndex]).lowercased() + text
+                result = try search(mode: mode, text: text, cache_text: cache_text, dict: result, new: true)
             }
 
             label.text = "\(words.count) result" + (words.count == 1 ? "" : "s") + " found.\n" + 
@@ -187,14 +195,14 @@ class FirstViewController: UIViewController {
                             return c_hooks[Side.Front]![$0]! + " \($0) " + c_hooks[Side.Back]![$0]!
                          }.joined(separator: "\n")
         } catch (SearchError.IllegalCharacter) {
-            label.text = "Illegal Character in Identifier"
+            words.text = "Illegal Character in Identifier"
         } catch {
-            label.text = "Unknown processing error: \(error)"
+            words.text = "Unknown processing error: \(error)"
         }
         
 
     }
-    
+
     func search(mode: String, text: String, cache_text: String, dict: [String] = [String](), new: Bool = false) throws -> [String] {
         print(cache_text)
         
@@ -332,6 +340,14 @@ class FirstViewController: UIViewController {
         }
         
         return hooks
+    }
+    
+    private func maxLength(arr: [String]) -> Int {
+        return arr.map { $0.count }.max()!
+    }
+    
+    private func pad(str: String, pad: Int) -> String {
+        return " " + str.padding(toLength: pad, withPad: " ", startingAt: 0) + " "
     }
     
     enum SearchError: Error {
