@@ -193,7 +193,7 @@ class FirstViewController: UIViewController {
                                     }
                                     return [c_hooks[Side.Front]![word]!, " \(word) ", c_hooks[Side.Back]![word]!]
                                  }
-            words.text = fwb.map { $0.joined(separator: " ") }.joined(separator: "\n")
+            // words.text = fwb.map { $0.joined(separator: " ") }.joined(separator: "\n")
             /*
             // var ft = "\n", wt = "\(result.count) result" + (result.count == 1 ? "" : "s") + " found.\n", bt = "\n"
             // var attrText = NSMutableAttributedString()
@@ -242,10 +242,10 @@ class FirstViewController: UIViewController {
             }
             */
             //<center>
-            /*
-            var s = "<h5>\(result.count) result" + (result.count == 1 ? "" : "s") + " found.</h5><br>"
+            
+            var s = "<h5>\(result.count) result" + (result.count == 1 ? "" : "s") + " found.</h5>"
             for l in fwb {
-                s += "<small>\(l[0])</small> \(l[1]) <small>\(l[2])</small><br>"
+                s += "<small>\(l[0])</small> <b><large>\(l[1])<large></b> <small>\(l[2])</small><br>"
             }
             //s += "</center>"
             let encodedData = s.data(using: String.Encoding.utf8)!
@@ -253,11 +253,10 @@ class FirstViewController: UIViewController {
             do {
                 let attributedString = try NSAttributedString(data: encodedData, options: attributedOptions, documentAttributes: nil)
                 words.attributedText = attributedString
-                
             } catch _ {
                 print("Cannot create attributed String")
             }
-            */
+            
         } catch (SearchError.IllegalCharacter) {
             words.text = "Illegal Character in Identifier"
         } catch {
