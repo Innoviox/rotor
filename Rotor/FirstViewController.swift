@@ -275,7 +275,8 @@ class FirstViewController: UIViewController {
         if (cached[cache_text] != nil) { return cached[cache_text]! }
         
         var ret = Set<String>()
-        if mode == self.types[0] {
+        
+        if mode == self.types[0].lowercased() {
             let pattern = text.uppercased().replacingOccurrences(of: "?", with: ".").replacingOccurrences(of: "@", with: ".*").replacingOccurrences(of: "\\V", with: "[AEIOUaeiou]").replacingOccurrences(of: "\\C", with: "[^AEIOUaeiou]")
             func re_search(dict: Set<String>) {
                 // ret = ret.union(dict.filter { $0.range(of: pattern, options: .regularExpression, range: nil, locale: nil) != nil })
@@ -305,7 +306,7 @@ class FirstViewController: UIViewController {
                 throw SearchError.IllegalCharacter
             }
 
-            for word in mode == self.types[1] ?
+            for word in mode == self.types[1].lowercased() ?
                 combinations(str: text, min: text.count) :
                 combinations(str: text, min: 2) {
                     ret = ret.union(blanks(word).filter { check(word: $0, dict: dict) }.map { blankPrint(word: word, bWord: $0) })
